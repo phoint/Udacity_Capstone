@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phoint-capstone
+  labels:
+    app: capstone
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: capstone
+  template:
+    metadata:
+      labels:
+        app: capstone
+    spec:
+      containers:
+      - name: web
+        image: 504395544721.dkr.ecr.us-east-1.amazonaws.com/repo_project_5:latest
+        ports:
+          - name: web
+            containerPort: 80
