@@ -115,7 +115,7 @@ workflows:
           region: ${AWS_DEFAULT_REGION}
           repo: phoint-capstone-app
           dockerfile: Dockerfile
-          path: Udacity_Capstone/src
+          path: ./src
           tag: ${CIRCLE_SHA1}
           # Uncomment if the repository does not yet exist
           create-repo: true
