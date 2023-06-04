@@ -58,16 +58,67 @@ jobs:
           nodes-max: 2
           ssh-access: false
           ssh-public-key: ''
+
+  deploy-application:
+    docker: 
+      - image: cimg/python:3.7.9
+    parameters:
+      cluster-name:
+        description: Name of the EKS cluster
+        type: string
+      docker-image-name:
+        description: Name of the docker image
+        type: string
+      version-info:
+        description: App version information
+        type: string
+      aws-region:
+        description: AWS region
+        type: string
+        default: ""
+    steps:
+      - checkout
+      - run:
+          name: Create deployment
+          command: |
+            # Replace the placeholders in the manifest with the intended values.
+            # This is to avoid hardcoding the image name in the manifest, to make this
+            # demo project more portable.
+            BUILD_DATE=$(date '+%Y%m%d%H%M%S')
+            cat template/deployment.yaml.template |\
+            sed "s|DOCKER_IMAGE_NAME|<< parameters.docker-image-name >>|g;\
+            s|BUILD_DATE_VALUE|$BUILD_DATE|g;\
+            s|VERSION_INFO_VALUE|<< parameters.version-info >>|g" > template/deployment.yaml
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+          aws-region: << parameters.aws-region >>
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "template/deployment.yaml"
+          get-rollout-status: true
+          resource-name: deployment/phoint-capstone
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "template/service.yaml"
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
   capstone-workflow:
     jobs:
       - linting-code
-      - create-small-cluster:
-          cluster-name: phoint-capstone
-          requires:
-            - linting-code
+      # - create-small-cluster:
+      #     cluster-name: phoint-capstone
+      #     requires:
+      #       - linting-code
+      - aws-ecr/build-and-push-image:
+          name: build-and-push-image
+          executor: aws-ecr/default
+          region: ${AWS_DEFAULT_REGION}
+          repo: phoint-capstone-app
+          dockerfile: Dockerfile
+          path: Udacity_Capstone/src
+          tag: ${CIRCLE_SHA1}
+          # Uncomment if the repository does not yet exist
+          create-repo: true
       # - aws-eks/delete-cluster:
       #     cluster-name: phoint-capstone
       #     aws-region: $AWS_DEFAULT_REGION
