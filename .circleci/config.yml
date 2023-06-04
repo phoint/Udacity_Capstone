@@ -38,7 +38,7 @@ jobs:
           command: |
             . .devops/bin/activate
             make lint
-  create-small-cluster:
+  create-cluster:
     docker: 
       - image: cimg/python:3.7.9
     parameters:
@@ -105,10 +105,6 @@ workflows:
   capstone-workflow:
     jobs:
       - linting-code
-      # - create-small-cluster:
-      #     cluster-name: phoint-capstone
-      #     requires:
-      #       - linting-code
       - aws-ecr/build-and-push-image:
           name: build-and-push-image
           executor: aws-ecr/default
@@ -118,7 +114,19 @@ workflows:
           path: ./src
           tag: ${CIRCLE_SHA1}
           # Uncomment if the repository does not yet exist
-          create-repo: true
+          # create-repo: true
+      - create-cluster:
+          cluster-name: phoint-capstone
+          requires:
+            - build-and-push-image
+      
+      - deploy-application:
+          cluster-name: phoint-capstone
+          aws-region: ${AWS_DEFAULT_REGION}
+          docker-image-name: "${AWS_ECR_URL}/phoint-capstone-app:${CIRCLE_SHA1}"
+          version-info: "${CIRCLE_SHA1}"
+          requires:
+            - create-cluster
       # - aws-eks/delete-cluster:
       #     cluster-name: phoint-capstone
       #     aws-region: $AWS_DEFAULT_REGION
