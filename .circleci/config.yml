@@ -139,7 +139,10 @@ workflows:
 
   capstone-workflow-without-infra:
     jobs:
-      - linting-code
+      - linting-code:
+          filters:
+            branches:
+              only: master
       - aws-ecr/build-and-push-image:
           name: build-and-push-image
           executor: aws-ecr/default
