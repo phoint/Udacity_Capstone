@@ -106,7 +106,12 @@ jobs:
 workflows:
   capstone-workflow-with-infra:
     jobs:
-      - linting-code
+      - linting-code:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^infrastructure.*/
       - aws-ecr/build-and-push-image:
           name: build-and-push-image
           executor: aws-ecr/default
@@ -115,11 +120,8 @@ workflows:
           dockerfile: Dockerfile
           path: ./src
           tag: ${CIRCLE_SHA1}
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^infrastructure.*/
+          requires:
+            - linting-code
           # Uncomment if the repository does not yet exist
           # create-repo: true
       - create-cluster:
@@ -165,4 +167,4 @@ workflows:
       #     aws-region: $AWS_DEFAULT_REGION
       #     wait: true
       #     requires:
-      #       - create-small-cluster
+      #       - create-cluster
