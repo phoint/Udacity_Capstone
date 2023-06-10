@@ -97,14 +97,14 @@ jobs:
       - kubernetes/create-or-update-resource:
           resource-file-path: "template/deployment.yaml"
           get-rollout-status: true
-          watch-timeout: 15m
+          watch-timeout: 1h
           resource-name: deployment/phoint-capstone
       - kubernetes/create-or-update-resource:
           resource-file-path: "template/service.yaml"
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  capstone-workflow:
+  capstone-workflow-with-infra:
     jobs:
       - linting-code
       - aws-ecr/build-and-push-image:
@@ -117,7 +117,9 @@ workflows:
           tag: ${CIRCLE_SHA1}
           filters:
             branches:
-              only: master
+              ignore: /.*/
+            tags:
+              only: /^infrastructure.*/
           # Uncomment if the repository does not yet exist
           # create-repo: true
       - create-cluster:
@@ -132,6 +134,32 @@ workflows:
           version-info: "${CIRCLE_SHA1}"
           requires:
             - create-cluster
+
+  capstone-workflow-without-infra:
+    jobs:
+      - linting-code
+      - aws-ecr/build-and-push-image:
+          name: build-and-push-image
+          executor: aws-ecr/default
+          region: ${AWS_DEFAULT_REGION}
+          repo: phoint-capstone-app
+          dockerfile: Dockerfile
+          path: ./src
+          tag: ${CIRCLE_SHA1}
+          filters:
+            branches:
+              only: master
+
+          # Uncomment if the repository does not yet exist
+          # create-repo: true
+      
+      - deploy-application:
+          cluster-name: phoint-capstone
+          aws-region: ${AWS_DEFAULT_REGION}
+          docker-image-name: "${AWS_ECR_URL}/phoint-capstone-app:${CIRCLE_SHA1}"
+          version-info: "${CIRCLE_SHA1}"
+          requires:
+            - build-and-push-image
       # - aws-eks/delete-cluster:
       #     cluster-name: phoint-capstone
       #     aws-region: $AWS_DEFAULT_REGION
