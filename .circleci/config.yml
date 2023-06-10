@@ -109,9 +109,7 @@ workflows:
       - linting-code:
           filters:
             branches:
-              ignore: /.*/
-            tags:
-              only: /^infrastructure.*/
+              only: deploy-infrastructure
       - aws-ecr/build-and-push-image:
           name: build-and-push-image
           executor: aws-ecr/default
@@ -120,8 +118,9 @@ workflows:
           dockerfile: Dockerfile
           path: ./src
           tag: ${CIRCLE_SHA1}
-          requires:
-            - linting-code
+          filters:
+            branches:
+              only: deploy-infrastructure
           # Uncomment if the repository does not yet exist
           # create-repo: true
       - create-cluster:
