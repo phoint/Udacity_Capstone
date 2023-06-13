@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: DOCKER_IMAGE
+        image: DOCKER_IMAGE_NAME
         env:
         - name: VERSION_INFO
           value: "VERSION_INFO_VALUE"
