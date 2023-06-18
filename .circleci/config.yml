@@ -103,6 +103,7 @@ jobs:
           show-kubectl-command: true
       - kubernetes/create-or-update-resource:
           resource-file-path: "template/service.yaml"
+
   test-application:
     docker: 
       - image: cimg/python:3.7.9
@@ -184,6 +185,14 @@ workflows:
           requires:
             - create-cluster
 
+      - test-application:
+          name: test-application
+          cluster-name: phoint-capstone
+          aws-region: $AWS_DEFAULT_REGION
+          expected-version-info: "${CIRCLE_SHA1}"
+          requires:
+            - deploy-application
+
   capstone-workflow-without-infra:
     jobs:
       - linting-code:
@@ -212,7 +221,6 @@ workflows:
           version-info: "${CIRCLE_SHA1}"
           requires:
             - build-and-push-image
-
 
       - test-application:
           name: test-application
