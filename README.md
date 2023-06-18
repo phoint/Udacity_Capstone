@@ -1,7 +1,6 @@
-# Udacity_Capstone
-# CircleCI Demo: AWS EKS [![CircleCI status](https://circleci.com/gh/CircleCI-Public/circleci-demo-aws-eks.svg "CircleCI status")](https://circleci.com/gh/CircleCI-Public/circleci-demo-aws-eks)
+# Udacity_Capstone [![CircleCI](https://dl.circleci.com/status-badge/img/gh/phoint/Udacity_Capstone/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/phoint/Udacity_Capstone/tree/master)
 
-## Deploy to AWS Elastic Container Service for Kubernetes (AWS EKS) via CircleCI 2.0 using Orbs (Example Project)
+## Deploy to AWS Elastic Container Service for Kubernetes (AWS EKS) via CircleCI 2.0 using Orbs
 This Capstone project use orbs to conveniently build a Docker image on [CircleCI](https://circleci.com), push the Docker image to an Amazon Elastic Container Registry (ECR), and then deploy to Amazon Elastic Container Service for Kubernetes (AWS EKS). 
 
 ### Configure environment variables on CircleCI
@@ -14,7 +13,7 @@ The following [environment variables](https://circleci.com/docs/2.0/env-vars/#se
 | `AWS_DEFAULT_REGION`           | Used by the AWS CLI. Example value: "eu-west-3" (The specified region should be supported by AWS EKS) |
 | `AWS_ECR_URL`                  | Identifies the AWS ECR docker image registry that the docker image will be pushed to, in the format `AWS_ECR_URL`.dkr.ecr.`AWS_DEFAULT_REGION`.amazonaws.com |
 
-## Hot to run this CICD pipeline
+## How to run this CICD pipeline
 There are 2 branches in this Capstone Project, one for deploy application with infrastructure (create Cluster job) and one for rolling new version.
 - Using deploy-infrastructure branch for the first-time create Cluster.
 - The master branch will rollout a new build.
