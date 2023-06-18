@@ -38,28 +38,28 @@ jobs:
           command: |
             . .devops/bin/activate
             make lint
-  # create-cluster:
-  #   docker: 
-  #     - image: cimg/python:3.7.9
-  #   parameters:
-  #     cluster-name:
-  #       description: |
-  #         Name of the EKS cluster
-  #       type: string
-  #   steps:
-  #     - checkout
-  #     - aws-eks/install-aws-iam-authenticator:
-  #         release-tag: ''
-  #     - aws-eks/create-cluster:
-  #         cluster-name: << parameters.cluster-name >>
-  #         skip-kubectl-install: false
-  #         verbose: 3
-  #         node-type: t2.small
-  #         nodes-max: 2
-  #         aws-region: ${AWS_DEFAULT_REGION}
-  #         zones: us-east-1a,us-east-1b
-  #         ssh-access: false
-  #         ssh-public-key: ''
+  create-cluster:
+    docker: 
+      - image: cimg/python:3.7.9
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+    steps:
+      - checkout
+      - aws-eks/install-aws-iam-authenticator:
+          release-tag: ''
+      - aws-eks/create-cluster:
+          cluster-name: << parameters.cluster-name >>
+          skip-kubectl-install: false
+          verbose: 3
+          node-type: t2.small
+          nodes-max: 2
+          aws-region: ${AWS_DEFAULT_REGION}
+          zones: us-east-1a,us-east-1b
+          ssh-access: false
+          ssh-public-key: ''
 
   deploy-application:
     docker: 
@@ -125,15 +125,15 @@ workflows:
               only: deploy-infrastructure
           # Uncomment if the repository does not yet exist
           # create-repo: true
-      # - create-cluster:
-      #     cluster-name: phoint-capstone
-      #     requires:
-      #       - build-and-push-image
-      - aws-eks/create-cluster:
-          name: create-cluster
+      - create-cluster:
           cluster-name: phoint-capstone
           requires:
             - linting-code
+      # - aws-eks/create-cluster:
+      #     name: create-cluster
+      #     cluster-name: phoint-capstone
+      #     requires:
+      #       - linting-code
 
 
       - deploy-application:
